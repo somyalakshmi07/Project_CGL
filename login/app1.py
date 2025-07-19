@@ -16,6 +16,14 @@ db_config = {
     'database': 'new'
 }
 
+
+db = mysql.connector.connect(
+    host="mysql.railway.internal",
+    user="root",
+    password="mysql.railway.internal",
+    database="railway",
+    port=3306
+)
 @app.route('/')
 def index():
     return render_template('index.html')
