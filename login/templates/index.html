@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>CGL Dashboard</title>
+  <style>
+    nav { background: #333; padding: 10px; display: flex; gap: 10px; }
+    select { padding: 5px; }
+    table { margin-top: 20px; border-collapse: collapse; width: 100%; }
+    th, td { padding: 10px; border: 1px solid #ccc; }
+    th { background: #444; color: #fff; }
+  </style>
+</head>
+<body>
+  <nav>
+    <select id="cgl">
+      <option value="">Select CGL</option>
+      <option value="CGL-2">CGL-2</option>
+      <option value="CGL-3">CGL-3</option>
+    </select>
+
+    <select id="fy">
+      <option value="">Select FY</option>
+      <option value="22">FY22</option>
+      <option value="23">FY23</option>
+      <option value="24">FY24</option>
+      <option value="25">FY25</option>
+    </select>
+
+    <select id="product">
+      <option value="">Select Product</option>
+      <option value="GI">GI</option>
+      <option value="GL">GL</option>
+      <option value="PPGL">PPGL</option>
+      <option value="ZM">ZM</option>
+    </select>
+
+    <select id="segment">
+      <option value="">Select Segment</option>
+      <option value="export">Export</option>
+      <option value="Retail">Retail</option>
+      <option value="Appliance">Appliance</option>
+      <option value="Panel">Panel</option>
+      <option value="P&T">P&T</option>
+    </select>
+    <button type="submit">Go to Summary</button>
+
+<form id="exportForm" method="get" action="/export" onsubmit="return fillExportFields()">
+  <input type="hidden" name="fy" id="exportFy">
+  <input type="hidden" name="actual_product" id="exportProduct">
+  <input type="hidden" name="segment" id="exportSegment">
+  <button type="submit">Export to Excel</button>
+</form>
+
+
+
+  </nav>
+
+  <div id="result"></div>
+
+  <script>
+    const cglDropdown = document.getElementById("cgl");
+    const fyDropdown = document.getElementById("fy");
+    const productDropdown = document.getElementById("product");
+    const segmentDropdown = document.getElementById("segment");
+    const resultDiv = document.getElementById("result");
+
+    let fullData = []; // stores data from server (based on FY+Product)
+
+    // Step 1–3: Fetch from backend on product change
+    productDropdown.addEventListener("change", () => {
+      const cgl = cglDropdown.value;
+      const fy = fyDropdown.value;
+      const product = productDropdown.value;
+
+      if (cgl !== "CGL-2" || !fy || !product) {
+        resultDiv.innerHTML = "<p>Please select valid CGL, FY, and Product.</p>";
+        return;
+      }
+
+      fetch("/get_filtered_data", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cgl, fy, product })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          resultDiv.innerHTML = `<p>Error: ${data.error}</p>`;
+          return;
+        }
+
+        fullData = data; // store for future segment filtering
+        renderTable(fullData); // initially show all rows
+      })
+      .catch(err => {
+        resultDiv.innerHTML = "<p>Error loading data.</p>";
+        console.error(err);
+      });
+    });
+
+    // Step 4: Filter on segment change (client-side)
+    segmentDropdown.addEventListener("change", () => {
+      const selectedSegment = segmentDropdown.value;
+
+      if (!selectedSegment) {
+        renderTable(fullData); // show all if segment cleared
+      } else {
+        const filtered = fullData.filter(row => row.segment === selectedSegment);
+        renderTable(filtered);
+      }
+    });
+
+    function renderTable(data) {
+      if (!data || data.length === 0) {
+        resultDiv.innerHTML = "<p>No data to display.</p>";
+        return;
+      }
+
+      // let html = "<table><tr><th>Actual Product</th><th>Actual TDC</th><th>Segment</th> <th>Prop Ip Wt</th> <th>O/P Wt</th>  </tr>";
+      let html = `<table>
+      <tr>
+        <th>Op Batch No</th>
+  <th>Actual Product</th>
+  <th>Actual Tdc</th>
+  <th>Segment</th>
+  <th>Prop Ip Wt(CRFH)</th>
+  <th>O/P Wt(Production)</th>
+  <th>Total Length(m)</th>
+  <th>Area</th>
+  <th>Zinc</th>
+  <th>Process Duration(in min)</th>
+  <th>CRFH thickness(mm)</th>
+  <th>GP thickness(mm)</th>
+  <th>GSM</th>
+  <th>Width(mm)</th>
+  <th>Speed(mpm)</th>
+  <th>Productivity(TPH)</th>
+
+</tr>`;
+      data.forEach(row => {
+      html += `<tr>
+        <td>${row["Op Batch No"]}</td>
+  <td>${row["Actual Product"]}</td>
+  <td>${row["Actual Tdc"]}</td>
+  <td>${row["segment"]}</td>
+  <td>${row["Prop Ip Wt"]}</td>
+  <td>${row["O/P Wt"]}</td>
+  <td>${row["Total Length"]}</td>
+  <td>${row["Area"]}</td>
+  <td>${row["Zinc"]}</td>
+  <td>${row["Process Duration(in min)"]}</td>
+  <td>${row["CRFH thickness"]}</td>
+  <td>${row["GP thickness"]}</td>
+  <td>${row["Total Zn/AlZn Coating"]}</td>
+  <td>${row["Op Width"]}</td>
+  <td>${row["speed"]}</td>
+  <td>${row["productivity"]}</td>
+
+</tr>`;
+      });
+      html += "</table>";
+      resultDiv.innerHTML = html;
+    }
+  </script>
+  <script>
+  function fillExportFields() {
+    document.getElementById("exportFy").value = document.getElementById("fy").value;
+    document.getElementById("exportProduct").value = document.getElementById("actual_product").value;
+    document.getElementById("exportSegment").value = document.getElementById("segment").value;
+    return true;
+  }
+</script>
+
+
+</body>
+</html>
