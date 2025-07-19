@@ -9,12 +9,12 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'Megha@22',
-    'database': 'new'
-}
+db = mysql.connector.connect(
+    host="metro.proxy.rlwy.net",
+    user="root",
+    password="mnNvxgJvxSNRSDmHSbZdUxZIkPYASNub@metro",
+    database="railway"
+)
 
 
 @app.route('/')
