@@ -17,12 +17,13 @@ app = Flask(__name__)
 # )
 
 
+
 db = mysql.connector.connect(
-    host=os.getenv("mysql.railway.internal"),
-    user=os.getenv("root"),
-    password=os.getenv("wYNsNNmUnuqjJBrfmMjGjIVNBzFiuqKX"),
-    database=os.getenv("railway"),
-    port=int(os.getenv("3306"))
+    host=os.getenv("HOST","mysql.railway.internal"),
+    user=os.getenv("USER","root"),
+    password=os.getenv("PASSWORD","wYNsNNmUnuqjJBrfmMjGjIVNBzFiuqKX"),
+    database=os.getenv("DATABASE","railway"),
+    port=int(os.getenv("PORT", "3306"))
 )
 
 
