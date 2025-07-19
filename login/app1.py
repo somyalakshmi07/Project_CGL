@@ -19,7 +19,7 @@ app = Flask(__name__)
 
 
 db_config = {
-    "host": os.getenv("HOST", "mysql.railway.internal"),
+    "host": os.getenv("HOST", "switchyard.proxy.rlwy.net"),
     "user": os.getenv("USER", "root"),
     "password": os.getenv("PASSWORD", "wYNsNNmUnuqjJBrfmMjGjIVNBzFiuqKX"),
     "database": os.getenv("DATABASE", "railway"),
