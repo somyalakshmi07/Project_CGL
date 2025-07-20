@@ -24,13 +24,14 @@ db_config = {
     "password": os.getenv("PASSWORD", "wYNsNNmUnuqjJBrfmMjGjIVNBzFiuqKX"),
     "database": os.getenv("DATABASE", "railway"),
     "port": int(os.getenv("PORT", "3306"))
+    
 }
 
 
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('home.html')
 
 @app.route('/get_filtered_data', methods=['POST'])
 def get_filtered_data():
