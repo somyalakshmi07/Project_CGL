@@ -33,6 +33,10 @@ db_config = {
 def index():
     return render_template('home.html')
 
+@app.route('/productivity')
+def productivity():
+    return render_template("productivity.html")
+
 @app.route('/get_filtered_data', methods=['POST'])
 def get_filtered_data():
     data = request.json
